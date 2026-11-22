@@ -1,0 +1,149 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BARAGAN AI</title>
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;font-family:Arial,sans-serif;
+ background:linear-gradient(135deg,#080b1c,#101b3b,#21113c);
+ color:white;min-height:100vh
+}
+header{
+ padding:20px;display:flex;align-items:center;gap:13px;
+ background:#10172de8;border-bottom:1px solid #34436b
+}
+.logo{
+ width:48px;height:48px;border-radius:15px;
+ background:linear-gradient(135deg,#00eaff,#a855f7);
+ display:grid;place-items:center;color:#080b1c;
+ font-size:30px;font-weight:bold
+}
+h1{font-size:23px;margin:0}
+header p{margin:4px 0 0;color:#a9b9df;font-size:12px}
+main{max-width:800px;margin:auto;padding:20px}
+.welcome{text-align:center;margin:35px 0 25px}
+.welcome h2{
+ font-size:32px;margin:10px 0;
+ background:linear-gradient(90deg,#00eaff,#bd82ff);
+ background-clip:text;color:transparent
+}
+.welcome p{color:#b6c2dd;line-height:1.6}
+#chat{padding-bottom:130px}
+.msg{
+ padding:14px 16px;margin:13px 0;
+ border-radius:17px;line-height:1.6;
+ white-space:pre-wrap;overflow-wrap:anywhere
+}
+.user{background:#293d78;margin-left:12%}
+.bot{background:#17233e;border:1px solid #35486e;margin-right:5%}
+form{
+ position:fixed;bottom:0;left:0;right:0;
+ padding:14px;background:#0c1222;
+ border-top:1px solid #34436b;
+ display:flex;gap:9px;justify-content:center
+}
+input{
+ width:min(75%,620px);padding:15px;
+ border:1px solid #46577d;border-radius:15px;
+ background:#17213b;color:white;font-size:16px;outline:none
+}
+button{
+ border:0;border-radius:15px;padding:0 20px;
+ background:linear-gradient(135deg,#00dfff,#9b5cff);
+ color:#07101d;font-weight:bold;font-size:15px
+}
+button:disabled{opacity:.5}
+footer{text-align:center;color:#7483a5;font-size:11px;padding:15px}
+</style>
+</head>
+<body>
+
+<header>
+ <div class="logo">✦</div>
+ <div>
+  <h1>BARAGAN AI</h1>
+  <p>YOUR PERSONAL AI ASSISTANT</p>
+ </div>
+</header>
+
+<main>
+ <section class="welcome">
+  <h2>Hello! I'm BARAGAN AI</h2>
+  <p>Ask anything. Explore ideas. Learn something new.<br>
+  Your AI assistant is ready to help you.</p>
+ </section>
+
+ <div id="chat">
+  <div class="msg bot">
+   👋 Welcome to BARAGAN AI!<br>
+   How can I help you today?
+  </div>
+ </div>
+</main>
+
+<form id="form">
+ <input id="question" placeholder="Ask BARAGAN AI anything..." autocomplete="off" required>
+ <button id="send" type="submit">Send ➤</button>
+</form>
+
+<script>
+const API_URL = "PASTE_YOUR_CLOUDFLARE_WORKER_URL_HERE";
+
+const form = document.getElementById("form");
+const input = document.getElementById("question");
+const chat = document.getElementById("chat");
+const send = document.getElementById("send");
+
+function addMessage(text, type){
+ const div = document.createElement("div");
+ div.className = "msg " + type;
+ div.textContent = text;
+ chat.appendChild(div);
+ window.scrollTo(0,document.body.scrollHeight);
+ return div;
+}
+
+form.addEventListener("submit", async function(e){
+ e.preventDefault();
+ const question = input.value.trim();
+ if(!question) return;
+
+ addMessage(question,"user");
+ input.value = "";
+ send.disabled = true;
+ send.textContent = "...";
+
+ const loading = addMessage("BARAGAN AI is thinking...","bot");
+
+ try{
+  if(API_URL.includes("PASTE_YOUR")){
+   throw new Error("AI connection is not configured yet.");
+  }
+
+  const response = await fetch(API_URL,{
+   method:"POST",
+   headers:{"Content-Type":"application/json"},
+   body:JSON.stringify({message:question})
+  });
+
+  if(!response.ok) throw new Error("Server error: "+response.status);
+
+  const data = await response.json();
+  loading.textContent = data.reply || data.response || "No answer received.";
+
+ }catch(error){
+  loading.textContent = "Connection not ready yet. We need to connect the BARAGAN AI server. Please try again later.";
+ }finally{
+  send.disabled = false;
+  send.textContent = "Send ➤";
+ }
+});
+</script>
+
+<footer>© 2026 BARAGAN AI • Made with ❤️</footer>
+</body>
+</html>
